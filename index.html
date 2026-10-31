@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#10b981">
+  <meta name="description" content="Monitor de gastos e orçamento mensal, com dados salvos no seu aparelho.">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Finanças">
+  <title>Finanças</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="month-nav">
+        <button id="prevMonth" class="chev" aria-label="Mês anterior">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+        </button>
+        <button id="monthLabel" class="month-label" title="Voltar ao mês atual"></button>
+        <button id="nextMonth" class="chev" aria-label="Mês seguinte">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+      </div>
+      <button id="openSettings" class="icon-btn" aria-label="Ajustes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </header>
+
+    <main class="content">
+      <section class="view" id="view-resumo">
+        <div class="hero card">
+          <p class="hero-label"><span id="heroVerb">Gasto</span> em <span id="heroMonth"></span></p>
+          <p class="hero-value" id="resumoTotal">R$ 0,00</p>
+          <div class="hero-split">
+            <div><span>Receitas</span><strong id="resumoReceitas">R$ 0,00</strong></div>
+            <div><span>Saldo</span><strong id="resumoSaldo">R$ 0,00</strong></div>
+          </div>
+          <p class="hero-note hidden" id="heroFuture"></p>
+        </div>
+
+        <div class="card" id="budgetCard">
+          <div class="card-head">
+            <h2>Orçamento</h2>
+            <span class="muted small" id="budgetPct"></span>
+          </div>
+          <div class="bar"><span id="budgetBar"></span></div>
+          <p class="muted small" id="budgetText"></p>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h2>Onde foi o dinheiro</h2></div>
+          <div id="resumoCategorias"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2>Últimos lançamentos</h2>
+            <button class="link" data-goto="lancamentos">Ver todos</button>
+          </div>
+          <div id="resumoRecentes"></div>
+        </div>
+      </section>
+
+      <section class="view hidden" id="view-lancamentos">
+        <div class="segmented" id="lancFilter" role="tablist" aria-label="Filtrar lançamentos">
+          <button type="button" data-filter="all" class="active">Todas</button>
+          <button type="button" data-filter="expense">Despesas</button>
+          <button type="button" data-filter="income">Receitas</button>
+        </div>
+        <div class="card" id="lancListCard">
+          <div id="lancList"></div>
+        </div>
+      </section>
+
+      <section class="view hidden" id="view-orcamento">
+        <div class="card">
+          <div class="card-head">
+            <h2>Total do mês</h2>
+            <span class="muted small" id="orcPct"></span>
+          </div>
+          <p class="big" id="orcTotal">R$ 0,00</p>
+          <div class="bar"><span id="orcBar"></span></div>
+          <p class="muted small" id="orcText"></p>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><h2>Por categoria</h2></div>
+          <div id="orcList"></div>
+        </div>
+        <p class="hint">Toque no campo à direita para definir o orçamento mensal de cada categoria.</p>
+      </section>
+
+      <section class="view hidden" id="view-previsao">
+        <div class="card">
+          <p class="hero-label muted">Saldo realizado até hoje</p>
+          <p class="big" id="prevSaldo">R$ 0,00</p>
+          <p class="muted small" id="prevSaldoHint">Soma de todas as receitas menos despesas com data até hoje.</p>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2>Próximos meses</h2>
+            <span class="muted small">previsto</span>
+          </div>
+          <div id="prevMonths"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2>Longo prazo (12 meses)</h2>
+            <span class="muted small" id="ltTotal"></span>
+          </div>
+          <div id="ltGroups"></div>
+          <div class="stack">
+            <button type="button" class="btn ghost" id="newInstallment">+ Compra parcelada</button>
+            <button type="button" class="btn ghost" id="newInvoice">+ Fatura de cartão</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <h2>Lançamentos futuros</h2>
+            <button type="button" class="link" id="addForecast">Adicionar</button>
+          </div>
+          <div id="prevList"></div>
+        </div>
+        <p class="hint">Qualquer lançamento com data futura entra automaticamente nesta previsão.</p>
+      </section>
+    </main>
+
+    <button id="fab" class="fab" aria-label="Adicionar lançamento">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+
+    <nav class="bottomnav" aria-label="Navegação principal">
+      <div class="nav-inner">
+        <button type="button" data-view="resumo" class="active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V3"/><path d="M7 17l4-5 3 3 6-8"/></svg>
+          <span>Resumo</span>
+        </button>
+        <button type="button" data-view="lancamentos">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg>
+          <span>Lançamentos</span>
+        </button>
+        <button type="button" data-view="orcamento">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h14v4"/><path d="M3 7v10a2 2 0 0 0 2 2h16V9H5a2 2 0 0 1-2-2z"/><circle cx="16.5" cy="14" r="1.2"/></svg>
+          <span>Orçamento</span>
+        </button>
+        <button type="button" data-view="previsao">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 14l4-4 3 3 6-7"/><path d="M17 6h3v3"/></svg>
+          <span>Previsão</span>
+        </button>
+      </div>
+    </nav>
+  </div>
+
+  <div class="backdrop" id="addBackdrop" hidden></div>
+  <section class="sheet" id="addSheet" role="dialog" aria-modal="true" aria-labelledby="addTitle" hidden>
+    <div class="sheet-grab"></div>
+    <div class="sheet-head">
+      <h2 id="addTitle">Novo lançamento</h2>
+      <button type="button" class="icon-btn" id="closeAdd" aria-label="Fechar">&#10005;</button>
+    </div>
+    <form id="txForm" novalidate>
+      <input type="hidden" id="fId">
+      <div class="segmented" id="typeToggle">
+        <button type="button" data-type="expense" class="active">Despesa</button>
+        <button type="button" data-type="income">Receita</button>
+      </div>
+      <label class="field">
+        <span>Valor</span>
+        <div class="amount-field">
+          <span>R$</span>
+          <input id="fAmount" inputmode="decimal" placeholder="0,00" autocomplete="off" enterkeyhint="done">
+        </div>
+      </label>
+      <div class="row">
+        <label class="field">
+          <span>Categoria</span>
+          <select id="fCategory"></select>
+        </label>
+        <label class="field">
+          <span>Data</span>
+          <input id="fDate" type="date">
+        </label>
+      </div>
+      <div class="row hidden" id="repeatRow">
+        <label class="field">
+          <span>Repetir</span>
+          <select id="fRepeat">
+            <option value="none">Não repetir</option>
+            <option value="weekly">Semanal</option>
+            <option value="monthly">Mensal</option>
+            <option value="yearly">Anual</option>
+          </select>
+        </label>
+        <label class="field hidden" id="repeatCountField">
+          <span>Ocorrências</span>
+          <input id="fRepeatCount" type="number" min="2" max="60" step="1" value="3" inputmode="numeric">
+        </label>
+      </div>
+      <label class="field">
+        <span>Descrição (opcional)</span>
+        <input id="fNote" maxlength="80" placeholder="Ex.: mercado" autocomplete="off">
+      </label>
+      <div class="actions">
+        <button type="button" class="btn ghost" id="cancelAdd">Cancelar</button>
+        <button type="submit" class="btn primary">Salvar</button>
+      </div>
+      <button type="button" class="btn danger-ghost hidden" id="deleteTx">Excluir lançamento</button>
+    </form>
+  </section>
+
+  <div class="backdrop" id="setBackdrop" hidden></div>
+  <section class="sheet" id="setSheet" role="dialog" aria-modal="true" aria-labelledby="setTitle" hidden>
+    <div class="sheet-grab"></div>
+    <div class="sheet-head">
+      <h2 id="setTitle">Ajustes</h2>
+      <button type="button" class="icon-btn" id="closeSet" aria-label="Fechar">&#10005;</button>
+    </div>
+
+    <div class="card flat">
+      <h3>Categorias</h3>
+      <div id="categoryList"></div>
+      <div class="addcat">
+        <input id="newCatName" placeholder="Nova categoria" maxlength="24" autocomplete="off">
+        <select id="newCatKind">
+          <option value="expense">Despesa</option>
+          <option value="income">Receita</option>
+        </select>
+        <button type="button" class="btn primary small" id="addCatBtn">Adicionar</button>
+      </div>
+    </div>
+
+    <div class="card flat">
+      <h3>Dados</h3>
+      <p class="muted small">Seus dados ficam salvos apenas neste aparelho. Faça um backup antes de trocar de celular ou limpar o navegador.</p>
+      <div class="stack">
+        <button type="button" class="btn ghost" id="exportJson">Exportar backup (JSON)</button>
+        <button type="button" class="btn ghost" id="exportCsv">Exportar CSV</button>
+        <button type="button" class="btn ghost" id="importBtn">Importar backup (JSON)</button>
+        <input type="file" id="importFile" accept="application/json,.json" hidden>
+        <button type="button" class="btn danger-ghost" id="resetBtn">Apagar todos os dados</button>
+      </div>
+    </div>
+
+    <p class="muted small center">Monitor de Finanças &middot; dados locais</p>
+  </section>
+
+  <div class="backdrop" id="instBackdrop" hidden></div>
+  <section class="sheet" id="instSheet" role="dialog" aria-modal="true" aria-labelledby="instTitle" hidden>
+    <div class="sheet-grab"></div>
+    <div class="sheet-head">
+      <h2 id="instTitle">Compra parcelada</h2>
+      <button type="button" class="icon-btn" id="closeInst" aria-label="Fechar">&#10005;</button>
+    </div>
+    <form id="instForm" novalidate>
+      <label class="field">
+        <span>Descrição</span>
+        <input id="iLabel" maxlength="60" placeholder="Ex.: Notebook" autocomplete="off">
+      </label>
+      <label class="field">
+        <span>Valor total</span>
+        <div class="amount-field">
+          <span>R$</span>
+          <input id="iTotal" inputmode="decimal" placeholder="0,00" autocomplete="off">
+        </div>
+      </label>
+      <div class="row">
+        <label class="field">
+          <span>Parcelas</span>
+          <select id="iCount"></select>
+        </label>
+        <label class="field">
+          <span>Primeira parcela</span>
+          <input id="iDate" type="date">
+        </label>
+      </div>
+      <div class="row">
+        <label class="field">
+          <span>Categoria</span>
+          <select id="iCategory"></select>
+        </label>
+        <label class="field">
+          <span>Cartão (opcional)</span>
+          <input id="iCard" maxlength="30" placeholder="Ex.: Nubank" autocomplete="off">
+        </label>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn ghost" id="cancelInst">Cancelar</button>
+        <button type="submit" class="btn primary">Criar parcelas</button>
+      </div>
+      <p class="hint" id="instPreview"></p>
+    </form>
+  </section>
+
+  <div class="backdrop" id="invBackdrop" hidden></div>
+  <section class="sheet" id="invSheet" role="dialog" aria-modal="true" aria-labelledby="invTitle" hidden>
+    <div class="sheet-grab"></div>
+    <div class="sheet-head">
+      <h2 id="invTitle">Fatura de cartão</h2>
+      <button type="button" class="icon-btn" id="closeInv" aria-label="Fechar">&#10005;</button>
+    </div>
+    <form id="invForm" novalidate>
+      <label class="field">
+        <span>Cartão</span>
+        <input id="vCard" maxlength="30" placeholder="Ex.: Nubank" autocomplete="off">
+      </label>
+      <label class="field">
+        <span>Valor da fatura (por mês)</span>
+        <div class="amount-field">
+          <span>R$</span>
+          <input id="vAmount" inputmode="decimal" placeholder="0,00" autocomplete="off">
+        </div>
+      </label>
+      <div class="row">
+        <label class="field">
+          <span>Vencimento</span>
+          <input id="vDate" type="date">
+        </label>
+        <label class="field">
+          <span>Categoria</span>
+          <select id="vCategory"></select>
+        </label>
+      </div>
+      <div class="actions">
+        <button type="button" class="btn ghost" id="cancelInv">Cancelar</button>
+        <button type="submit" class="btn primary">Registrar fatura</button>
+      </div>
+      <p class="hint">Cada fatura vale para o mês do vencimento. Registre uma para cada mês, com o valor estimado daquele mês. Não lance também as compras individuais para não contar duas vezes.</p>
+    </form>
+  </section>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

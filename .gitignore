@@ -1,0 +1,12 @@
+# Backups exportados pelo app
+*.bak
+backup*.json
+
+# Atalhos locais do Windows (nao usados no site)
+abrir-financas.ps1
+abrir-financas.vbs
+financas.ico
+
+# Sistema
+Thumbs.db
+desktop.ini
